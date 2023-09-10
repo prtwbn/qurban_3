@@ -1,0 +1,19 @@
+{
+    "categories" : [
+        {
+            "name" : "Hewan Qurban",
+            "subcategory" : [
+                "Kambing Qurban",
+                "Sapi Qurban",
+                "Domba Qurban"
+            ]
+        },
+        {
+            "name" : "Hewan Aqiqah",
+            "subcategory" : [
+                "Kambing Aqiqah",
+                "Domba Aqiqah"
+            ]
+        }
+    ]
+}

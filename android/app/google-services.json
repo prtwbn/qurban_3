@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "214755552988",
+    "project_id": "qurban-76010",
+    "storage_bucket": "qurban-76010.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:214755552988:android:40f1debbb6b986dc564e19",
+        "android_client_info": {
+          "package_name": "com.example.qurban_3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "214755552988-0ofcutuof9gv6uq5dl0hbju8ee09b7bk.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzJOahjntO8vOZE_McIcShAG_UYMEeJ6Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "214755552988-0ofcutuof9gv6uq5dl0hbju8ee09b7bk.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "214755552988-t40dajovsjfgj3mrjiqnsgremu3eemtm.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.qurban3"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
