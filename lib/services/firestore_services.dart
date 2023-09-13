@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+//import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qurban_3/consts/consts.dart';
 
 class FirestorServices {
@@ -70,6 +70,7 @@ class FirestorServices {
   }
 
   static getAllMessages(uid) {
+    print(uid);
     return firestore
         .collection(chatsCollection)
         .where('users', arrayContains: uid)

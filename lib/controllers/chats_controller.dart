@@ -6,41 +6,44 @@ import 'package:qurban_3/consts/firebase_const.dart';
 import 'package:qurban_3/controllers/home_controller.dart';
 
 class ChatsController extends GetxController {
+  late String friendName;
+  late String friendId;
+  late CollectionReference chats;
+  late String senderName;
+  late String currentId;
+  late TextEditingController msgController;
+  dynamic chatDocId;
+  RxBool isLoading = false.obs;
+
   @override
   void onInit() {
-    getChatId();
     super.onInit();
+
+    friendName = Get.arguments[0];
+    friendId = Get.arguments[1];
+    chats = FirebaseFirestore.instance.collection(chatsCollection);
+    senderName = Get.find<HomeController>().username.value;
+    currentId = currentUser!.uid;
+    msgController = TextEditingController();
+
+    getChatId();
   }
 
-  final chats = firestore.collection(chatsCollection);
+  void getChatId() async {
+    print("friendId: ${friendId}");
+    print("currentId: ${currentId}");
+    var chatSnapshot = await chats.where('users', whereIn: [
+      [friendId, currentId],
+      [currentId, friendId]
+    ]).get();
 
-  final friendName = Get.arguments[0];
-  final friendId = Get.arguments[1];
-
-  final senderName = Get.find<HomeController>().username;
-  
-  final currentId = currentUser!.uid;
-
-  var msgController = TextEditingController();
-
-  dynamic chatDocId;
-
-  var isLoading = false.obs;
-
-  getChatId() async {
-    isLoading(true);
-    
-    var chatSnapshot = await chats
-    .where('users', arrayContainsAny: [friendId, currentId])
-    .limit(1)
-    .get();
+    print("chatSnapshot.docs: ${chatSnapshot.docs}");
 
 
     if (chatSnapshot.docs.isNotEmpty) {
       chatDocId = chatSnapshot.docs.single.id;
       //await chats.doc(chatDocId).update({'unread_count_pembeli': 0});
     } else {
-      try {
         var addChat = await chats.add({
           'created_on': FieldValue.serverTimestamp(),
           'last_msg': '',
@@ -48,18 +51,17 @@ class ChatsController extends GetxController {
           'told': friendId,
           'fromId': currentId,
           'friend_name': friendName,
-          'sender_name': senderName.value
+          'sender_name': senderName
         });
         chatDocId = addChat.id;
-      } catch (e) {
-        print(e);
       }
-    }
+      
+    
 
     isLoading(false);
   }
 
-  sendMsg(String msg) async {
+  void sendMsg(String msg) async {
     if (msg.trim().isNotEmpty) {
       chats.doc(chatDocId).update({
         'created_on': FieldValue.serverTimestamp(),

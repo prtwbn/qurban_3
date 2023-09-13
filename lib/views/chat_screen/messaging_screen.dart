@@ -38,25 +38,63 @@ class MessagesScreen extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: List.generate(data.length, (index) {
-                      var t = data[index]['created_on'] == null
-                          ? DateTime.now()
-                          : data[index]['created_on'].toDate();
-                      var time = intl.DateFormat("h:mma").format(t);
+                      //var t = data[index]['created_on'] == null
+                      //    ? DateTime.now()
+                      //    : data[index]['created_on'].toDate();
+                      //var time = intl.DateFormat("h:mma").format(t);
                       // print(data[index]['friend_name']);
-                      return ListTile(
-                        onTap: () {
-                          try {
-                            Get.to(
-                              () => ChatScreen(),
-                              arguments: [
-                                data[index]['friend_name'],
-                                data[index]['told'],
-                              ],
+                      return FutureBuilder<DocumentSnapshot>(
+                        future: FirebaseFirestore.instance
+                            .collection('vendors')
+                            .doc(data[index]['users']
+                                .where((user) => user != currentUser!.uid)
+                                .first)
+                            .get(),
+                        builder: (context, userSnapshot) {
+                          if (userSnapshot.hasData) {
+                            dynamic userData = userSnapshot.data!.data();
+
+                            String imageUrl = userData['imageUrl'];
+
+                            return ListTile(
+                              onTap: () {
+                                Get.to(() => const ChatScreen(), arguments: [
+                                  data[index]['users']
+                                      .where((user) => user != currentUser!.uid)
+                                      .first,
+                                  data[index]['fromId'],
+                                  data[index]['told'],
+                                ]);
+                              },
+                              leading: imageUrl.isNotEmpty
+                                  ? Image.network(imageUrl,
+                                          width: 50, fit: BoxFit.cover)
+                                      .box
+                                      .roundedFull
+                                      .clip(Clip.antiAlias)
+                                      .make()
+                                  : Image.asset('assets/icons/user.png',
+                                          width: 50, fit: BoxFit.cover)
+                                      .box
+                                      .roundedFull
+                                      .clip(Clip.antiAlias)
+                                      .make(),
+                              title: "${data[index]['friend_name']}"
+                                  .text
+                                  .fontFamily(semibold)
+                                  .color(darkFontGrey)
+                                  .make(),
+                              subtitle:
+                                  "${data[index]['last_msg']}".text.make(),
                             );
-                          } catch (e) {
-                            print(e);
+                          } else if (snapshot.hasError) {
+                            return const Text('Failed to load data');
+                          } else {
+                            return const CircularProgressIndicator();
                           }
                         },
+
+                        /*
                         leading: FutureBuilder<DocumentSnapshot>(
                           future: FirebaseFirestore.instance
                               .collection('vendors')
@@ -86,13 +124,7 @@ class MessagesScreen extends StatelessWidget {
                             }
                           },
                         ),
-                        title: "${data[index]['friend_name']}"
-                            .text
-                            .fontFamily(semibold)
-                            .color(darkFontGrey)
-                            .make(),
-                        subtitle: "${data[index]['last_msg']}".text.make(),
-                        
+                        */
                       );
                     }),
                   )),
