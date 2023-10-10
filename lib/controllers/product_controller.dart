@@ -15,6 +15,7 @@ class ProductController extends GetxController {
 
   var isLowestToHighest = false.obs;
   
+var sortByDistance = false.obs;
 
 
   getSubCategories(title) async {
@@ -47,7 +48,23 @@ class ProductController extends GetxController {
   }
 
   
-  addtoCart({docId, title, img, sellername, qty, tprice, context, price, vendorID, required int totalQuantity}) async {
+  addtoCart({
+  docId,
+  title,
+  img,
+  qty,
+  tprice,
+  context,
+  price,
+  vendorID,
+  required int totalQuantity,
+}) async {
+  // Mengambil data penjual dari koleksi 'vendors'
+  var vendorData = await firestore.collection('vendors').doc(vendorID).get();
+
+  if (vendorData.exists) {
+    var sellername = vendorData.get('name');
+
     // Cek apakah produk dengan docId yang sama sudah ada di keranjang
     var existingProduct = await firestore.collection(cartCollection)
         .where('product_id', isEqualTo: docId)
@@ -55,36 +72,40 @@ class ProductController extends GetxController {
         .get();
 
     if (existingProduct.docs.isNotEmpty) {
-        var existingQty = existingProduct.docs.first.get('qty') as int;
-        qty += existingQty;
+      var existingQty = existingProduct.docs.first.get('qty') as int;
+      qty += existingQty;
 
-        // Pastikan jumlah produk tidak melebihi stok yang tersedia
-        if (qty > totalQuantity) {
-            VxToast.show(context, msg: "Maaf stok tidak cukup, anda sudah memasukkan produk di keranjang");
-            return;
-        }
+      // Pastikan jumlah produk tidak melebihi stok yang tersedia
+      if (qty > totalQuantity) {
+        VxToast.show(context, msg: "Maaf stok tidak cukup, anda sudah memasukkan produk di keranjang");
+        return;
+      }
 
-        // Update qty di firestore untuk produk yang ada
-        await firestore.collection(cartCollection)
-            .doc(existingProduct.docs.first.id)
-            .update({'qty': qty});
+      // Update qty di firestore untuk produk yang ada
+      await firestore.collection(cartCollection)
+          .doc(existingProduct.docs.first.id)
+          .update({'qty': qty, 'sellername': sellername});
     } else {
-        // Jika produk belum ada di keranjang, tambahkan ke firestore
-        await firestore.collection(cartCollection).doc().set({
-            'product_id': docId, 
-            'title': title,
-            'img': img,
-            'sellername': sellername,
-            'qty': qty,
-            'vendor_id' : vendorID,
-            'price' : price,
-            'tprice': tprice,
-            'added_by': currentUser!.uid
-        }).catchError((error) {
-            VxToast.show(context, msg: error.toString());
-        });
+      // Jika produk belum ada di keranjang, tambahkan ke firestore
+      await firestore.collection(cartCollection).doc().set({
+        'product_id': docId, 
+        'title': title,
+        'img': img,
+        'sellername': sellername, // Set sellername dari data penjual
+        'qty': qty,
+        'vendor_id' : vendorID,
+        'price' : price,
+        'tprice': tprice,
+        'added_by': currentUser!.uid
+      }).catchError((error) {
+        VxToast.show(context, msg: error.toString());
+      });
     }
+  } else {
+    VxToast.show(context, msg: "Data penjual tidak ditemukan");
+  }
 }
+
 
 
 
@@ -100,7 +121,7 @@ class ProductController extends GetxController {
       'p_wishlist': FieldValue.arrayUnion([currentUser!.uid])
     }, SetOptions(merge: true));
     isFav(true);
-    VxToast.show(context, msg: "Added to wishlist");
+    VxToast.show(context, msg: "Ditambahkan ke favorite");
   }
 
   removeFromWishlist(docId, context) async {
@@ -108,7 +129,7 @@ class ProductController extends GetxController {
       'p_wishlist': FieldValue.arrayRemove([currentUser!.uid])
     }, SetOptions(merge: true));
     isFav(false);
-    VxToast.show(context, msg: "Removed to wishlist");
+    VxToast.show(context, msg: "Dihapus dari favorite");
   }
 
   checkIfFav(data) async {
@@ -118,5 +139,7 @@ class ProductController extends GetxController {
       isFav(false);
     }
   }
+
+  
   // product_controller.dart
 }

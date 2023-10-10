@@ -19,7 +19,7 @@ class MessagesScreen extends StatelessWidget {
       backgroundColor: whiteColor,
       appBar: AppBar(
         title:
-            "My Messages".text.color(darkFontGrey).fontFamily(semibold).make(),
+            "Pesan Saya".text.color(darkFontGrey).fontFamily(semibold).make(),
       ),
       body: StreamBuilder(
         stream: FirestorServices.getAllMessages(currentUser!.uid),
@@ -38,10 +38,10 @@ class MessagesScreen extends StatelessWidget {
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     children: List.generate(data.length, (index) {
-                      //var t = data[index]['created_on'] == null
-                      //    ? DateTime.now()
-                      //    : data[index]['created_on'].toDate();
-                      //var time = intl.DateFormat("h:mma").format(t);
+                      var t = data[index]['created_on'] == null
+                          ? DateTime.now()
+                          : data[index]['created_on'].toDate();
+                      var time = intl.DateFormat("h:mma").format(t);
                       // print(data[index]['friend_name']);
                       return FutureBuilder<DocumentSnapshot>(
                         future: FirebaseFirestore.instance
@@ -62,7 +62,9 @@ class MessagesScreen extends StatelessWidget {
                                   data[index]['users']
                                       .where((user) => user != currentUser!.uid)
                                       .first,
-                                  data[index]['fromId'],
+                                  data[index]['users']
+                                      .where((user) => user != currentUser!.uid)
+                                      .first,
                                   data[index]['told'],
                                 ]);
                               },
@@ -74,18 +76,39 @@ class MessagesScreen extends StatelessWidget {
                                       .clip(Clip.antiAlias)
                                       .make()
                                   : Image.asset('assets/icons/user.png',
-                                          width: 50, fit: BoxFit.cover)
+                                          width: 40, fit: BoxFit.cover)
                                       .box
                                       .roundedFull
                                       .clip(Clip.antiAlias)
                                       .make(),
-                              title: "${data[index]['friend_name']}"
+                              title: "${userData['name']}"
                                   .text
                                   .fontFamily(semibold)
                                   .color(darkFontGrey)
                                   .make(),
                               subtitle:
                                   "${data[index]['last_msg']}".text.make(),
+                              trailing: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  time.text
+                                      .fontFamily(semibold)
+                                      .color(darkFontGrey)
+                                      .make(),
+                                  if (data[index]['unread_count_pembeli'] !=
+                                          null &&
+                                      data[index]['unread_count_pembeli'] > 0)
+                                    CircleAvatar(
+                                      radius: 10,
+                                      backgroundColor: Colors.red,
+                                      child: Text(
+                                        '${data[index]['unread_count_pembeli']}',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                                    ),
+                                ],
+                              ),
                             );
                           } else if (snapshot.hasError) {
                             return const Text('Failed to load data');

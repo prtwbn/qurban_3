@@ -1,4 +1,5 @@
 //import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:qurban_3/consts/consts.dart';
 
 class FirestorServices {
@@ -74,8 +75,10 @@ class FirestorServices {
     return firestore
         .collection(chatsCollection)
         .where('users', arrayContains: uid)
+        .orderBy('created_on', descending: true)  // Urutkan berdasarkan 'created_on' dengan yang terbaru di atas
         .snapshots();
-  }
+}
+
 
   static getCounts() async {
     var res = await Future.wait([
@@ -105,9 +108,10 @@ class FirestorServices {
   }
 
   static allproducts() {
-    return firestore.collection(productsCollection).snapshots();
+    return firestore.collection(productsCollection)
+      .orderBy('timestamp', descending: true) // Urutkan berdasarkan timestamp dari yang terbaru
+      .snapshots();
   }
-
   static allVendors() {
     return firestore.collection('vendors').snapshots();
   }
@@ -116,7 +120,10 @@ class FirestorServices {
     return firestore.collection(productsCollection).get();
   }
 
-  static searchVendors(title) {
-    return firestore.collection('vendors').get();
-  }
+  static Future<QuerySnapshot> searchVendors(String? title) {
+  return firestore
+      .collection('vendors')
+      .where('name', isGreaterThanOrEqualTo: title)
+      .get();
+}
 }

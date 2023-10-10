@@ -122,4 +122,15 @@ class CartController extends GetxController {
       firestore.collection(cartCollection).doc(productSnapshot[i].id).delete();
     }
   }
+
+  increaseCartQuantity(docId, currentQty) async {
+  await firestore.collection(cartCollection).doc(docId).update({'qty': currentQty + 1});
+}
+
+decreaseCartQuantity(docId, currentQty) async {
+  await firestore.collection(cartCollection).doc(docId).update({'qty': currentQty - 1});
+}
+
+
+  
 }

@@ -39,11 +39,17 @@ class ChatsController extends GetxController {
 
     print("chatSnapshot.docs: ${chatSnapshot.docs}");
 
-
     if (chatSnapshot.docs.isNotEmpty) {
       chatDocId = chatSnapshot.docs.single.id;
-      //await chats.doc(chatDocId).update({'unread_count_pembeli': 0});
-    } else {
+      chats.doc(chatDocId).update({'unread_count_pembeli': 0});
+    }
+
+    isLoading(false);
+  }
+
+  void sendMsg(String msg) async {
+    if (msg.trim().isNotEmpty) {
+      if (chatDocId == null) {
         var addChat = await chats.add({
           'created_on': FieldValue.serverTimestamp(),
           'last_msg': '',
@@ -55,20 +61,14 @@ class ChatsController extends GetxController {
         });
         chatDocId = addChat.id;
       }
-      
-    
 
-    isLoading(false);
-  }
-
-  void sendMsg(String msg) async {
-    if (msg.trim().isNotEmpty) {
       chats.doc(chatDocId).update({
         'created_on': FieldValue.serverTimestamp(),
         'last_msg': msg,
         'told': friendId,
         'fromId': currentId,
-        //'unread_count_penjual': FieldValue.increment(1), // Karena pesan ini dikirim oleh pembeli, jadi kita tambah count untuk penjual
+        'unread_count_pembeli': 0, // the sender has read the message
+        'unread_count_penjual': FieldValue.increment(1)
       });
 
       chats.doc(chatDocId).collection(messagesCollection).doc().set({
@@ -79,4 +79,3 @@ class ChatsController extends GetxController {
     }
   }
 }
-

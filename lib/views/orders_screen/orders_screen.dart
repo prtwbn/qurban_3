@@ -13,9 +13,9 @@ class OrdersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: whiteColor,
+      backgroundColor: lightGrey, // Ganti warna latar belakang
       appBar: AppBar(
-        title: "My Orders".text.color(darkFontGrey).fontFamily(semibold).make(),
+        title: "Riwayat Booking".text.color(darkFontGrey).fontFamily(semibold).make(),
       ),
       body: StreamBuilder(
         stream: FirestorServices.getAllOrders(),
@@ -25,58 +25,64 @@ class OrdersScreen extends StatelessWidget {
               child: loadingIndicator(),
             );
           } else if (snapshot.data!.docs.isEmpty) {
-            return "No orders yet!".text.color(darkFontGrey).makeCentered();
+            return "Belum ada yang di booking !".text.color(darkFontGrey).makeCentered().p16(); // Tambahkan padding dan atur warna teks
           } else {
             var data = snapshot.data!.docs;
-            
+
             return ListView.separated(
+              padding: const EdgeInsets.all(16), // Tambahkan padding pada ListView
               itemCount: data.length,
               itemBuilder: (BuildContext context, int index) {
                 var orderData = data[index].data() as Map<String, dynamic>;
                 var products = orderData['orders'] as List<dynamic>;
 
-                return ListTile(
-                  
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      for (var product in products)
-                        if (product['sellername'] != null)
-                          Text(
-                            product['sellername'],
-                            style: const TextStyle(fontFamily: semibold),
-                          ),
-                      5.heightBox,
-                      if (orderData['total_amount'] != null)
-                        'Rp${orderData['total_amount'].toString().numCurrency}'
-                            .text
-                            .fontFamily(bold)
-                            .make(),
-                      5.heightBox,
-                      if (orderData['order_date'] != null)
-                        Text(
-                          DateFormat('yyyy-MM-dd HH:mm')
-                              .format(orderData['order_date'].toDate()),
-                          style: const TextStyle(fontFamily: bold),
-                        ),
-                    ],
+                return Container(
+                  decoration: BoxDecoration(
+                    color: whiteColor, // Ganti warna latar belakang item
+                    borderRadius: BorderRadius.circular(12), // Tambahkan border radius
                   ),
-                  trailing: IconButton(
-                    onPressed: () {
-                      Get.to(() => OrderDetails(data: data[index]));
-                    },
-                    icon: const Icon(
-                      Icons.arrow_forward_ios_outlined,
-                      color: darkFontGrey,
+                  padding: const EdgeInsets.all(16), // Tambahkan padding pada item
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero, // Hilangkan padding tambahan pada ListTile
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        for (var product in products)
+                          if (product['sellername'] != null)
+                            Text(
+                              product['sellername'],
+                              style: const TextStyle(fontFamily: semibold),
+                            ),
+                          
+                        5.heightBox,
+                        
+                        if (orderData['total_amount'] != null)
+                          'Rp${orderData['total_amount'].toString().numCurrency}'
+                              .text
+                              .fontFamily(bold)
+                              .make(),
+                        5.heightBox,
+                        if (orderData['order_date'] != null)
+                          Text(
+                            DateFormat('yyyy-MM-dd HH:mm')
+                                .format(orderData['order_date'].toDate()),
+                            style: const TextStyle(fontFamily: bold),
+                          ),
+                      ],
+                    ),
+                    trailing: IconButton(
+                      onPressed: () {
+                        Get.to(() => OrderDetails(data: data[index]));
+                      },
+                      icon: const Icon(
+                        Icons.arrow_forward_ios_outlined,
+                        color: darkFontGrey,
+                      ),
                     ),
                   ),
                 );
               },
-              separatorBuilder: (BuildContext context, int index) => const Divider(
-                color: Colors.yellow,
-                height: 1,
-                thickness: 2,
-              ),
+              separatorBuilder: (BuildContext context, int index) => const SizedBox(height: 16), // Tambahkan jarak antara item
             );
           }
         },

@@ -29,21 +29,22 @@ class SearchScreen extends StatelessWidget {
               child: loadingIndicator(),
             );
           } else if (snapshot.data!.docs.isEmpty) {
-            return "No Product Found".text.makeCentered();
+            return "Tidak ada penjual dengan nama tersebut".text.makeCentered();
           } else {
             var data = snapshot.data!.docs;
-            var filtered = data
-                .where(
-                  (element) => element['p_seller']
-                      .toString()
-                      .toLowerCase()
-                      .contains(title!.toLowerCase()),
-                )
-                .toList();
+            var vendorSet = <String>{};
+            var uniqueVendors = data.where((element) {
+                String seller = element['p_seller'].toString().toLowerCase();
+                if (seller.contains(title!.toLowerCase()) && !vendorSet.contains(seller)) {
+                    vendorSet.add(seller);
+                    return true;
+                }
+                return false;
+            }).toList();
             return Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView.builder(
-                itemCount: filtered.length,
+                itemCount: uniqueVendors.length,
                 itemBuilder: (BuildContext context, int index) {
                   //var imageUrl = filtered[index]['imageUrl'];
                   return Container(
@@ -68,7 +69,7 @@ class SearchScreen extends StatelessWidget {
                           FutureBuilder<DocumentSnapshot>(
                             future: FirebaseFirestore.instance
                                 .collection('vendors')
-                                .doc(filtered[index]['vendor_id'])
+                                .doc(uniqueVendors[index]['vendor_id'])
                                 .get(),
                             builder: (context,
                                 AsyncSnapshot<DocumentSnapshot> snapshot) {
@@ -101,7 +102,7 @@ class SearchScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                "${filtered[index]['p_seller']}"
+                                "${uniqueVendors[index]['p_seller']}"
                                     .text
                                     .fontFamily(semibold)
                                     .color(darkFontGrey)
@@ -119,7 +120,7 @@ class SearchScreen extends StatelessWidget {
                       ),
                     ),
                   ).onTap(() {
-                    Get.to(() => ProfileSeller(data: filtered[index]));
+                    Get.to(() => ProfileSeller(data: uniqueVendors[index]));
                   });
                 },
               ),

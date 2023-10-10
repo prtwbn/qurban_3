@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 //import 'package:qurban_3/consts/colors.dart';
 import 'package:qurban_3/consts/consts.dart';
 import 'package:qurban_3/services/firestore_services.dart';
+import 'package:qurban_3/views/home_screen/item_details.dart';
 import 'package:qurban_3/widgets_common/bg_widget.dart';
 import 'package:qurban_3/widgets_common/loading_indicator.dart';
 
@@ -16,19 +17,26 @@ class WishlistScreen extends StatelessWidget {
     return bgWidget(
       child: Scaffold(
         appBar: AppBar(
-        title:
-            "My Wishlist".text.color(darkFontGrey).fontFamily(semibold).make(),
-      ),
+          title: "Produk Favorite"
+              .text
+              .color(darkFontGrey)
+              .fontFamily(semibold)
+              .make(),
+        ),
         backgroundColor: whiteColor,
         body: StreamBuilder(
           stream: FirestorServices.getAllWishlists(),
-          builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (!snapshot.hasData) {
               return Center(
                 child: loadingIndicator(),
               );
             } else if (snapshot.data!.docs.isEmpty) {
-              return "Simpan Produkmu Disihi".text.color(darkFontGrey).makeCentered();
+              return "Simpan Produk Kesukaanmu Disini"
+                  .text
+                  .color(darkFontGrey)
+                  .makeCentered();
             } else {
               var data = snapshot.data!.docs;
               return Container(
@@ -46,9 +54,10 @@ class WishlistScreen extends StatelessWidget {
                               width: 80,
                               fit: BoxFit.cover,
                             ),
-                            title: "${data[index]['p_name']}"
+                            title: "${data[index]['p_jenishewan']}"
                                 .text
                                 .fontFamily(semibold)
+                                .color(black)
                                 .size(16)
                                 .make(),
                             subtitle: "${data[index]['p_price']}"
@@ -61,13 +70,30 @@ class WishlistScreen extends StatelessWidget {
                               Icons.favorite,
                               color: golden,
                             ).onTap(() async {
-                              await firestore.collection(productsCollection).doc(data[index].id).set(
+                              await firestore
+                                  .collection(productsCollection)
+                                  .doc(data[index].id)
+                                  .set(
                                 {
-                                  'p_wishlist': FieldValue.arrayRemove([currentUser!.uid])
+                                  'p_wishlist':
+                                      FieldValue.arrayRemove([currentUser!.uid])
                                 },
                                 SetOptions(merge: true),
                               );
                             }),
+                            onTap: () {
+                              // Arahkan ke halaman item_details dengan data produk
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ItemDetails(
+                                    title: "${data[index]['p_jenishewan']}",
+                                    data: data[
+                                        index], // Mengirim ID produk ke halaman item_details
+                                  ),
+                                ),
+                              );
+                            },
                           );
                         },
                       ),

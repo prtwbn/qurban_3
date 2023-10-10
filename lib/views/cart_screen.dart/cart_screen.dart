@@ -17,7 +17,6 @@ class CartScreen extends StatelessWidget {
     var controller = Get.put(CartController());
     return Scaffold(
       backgroundColor: whiteColor,
-      
       bottomNavigationBar: StreamBuilder(
         stream: FirestorServices.getCart(currentUser!.uid),
         builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
@@ -64,7 +63,7 @@ class CartScreen extends StatelessWidget {
                 child: ourButton(
                   color: golden,
                   onPress: () {
-                    Get.to(() =>  ShippingDetails());
+                    Get.to(() => ShippingDetails());
                   },
                   textColor: whiteColor,
                   title: "Booking",
@@ -77,7 +76,11 @@ class CartScreen extends StatelessWidget {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         centerTitle: true,
-        title: "Keranjang Saya".text.color(darkFontGrey).fontFamily(semibold).make(),
+        title: "Keranjang Saya"
+            .text
+            .color(darkFontGrey)
+            .fontFamily(semibold)
+            .make(),
       ),
       body: StreamBuilder(
         stream: FirestorServices.getCart(currentUser!.uid),
@@ -88,7 +91,7 @@ class CartScreen extends StatelessWidget {
             );
           } else if (snapshot.data!.docs.isEmpty) {
             return Center(
-              child: "Cart Is Empty".text.color(darkFontGrey).make(),
+              child: "Keranjang Kosong".text.color(darkFontGrey).make(),
             );
           } else {
             var data = snapshot.data!.docs;
@@ -111,6 +114,54 @@ class CartScreen extends StatelessWidget {
                                 .fontFamily(bold)
                                 .size(16)
                                 .make(),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: Icon(Icons.remove),
+                                  onPressed: () {
+                                    if (data[index]['qty'] > 1) {
+                                      // Pastikan kuantitas lebih dari 1 sebelum mengurangi
+                                      controller.decreaseCartQuantity(
+                                          data[index].id, data[index]['qty']);
+                                    }
+                                  },
+                                ),
+                                Text(
+                                  "${data[index]['qty']}",
+                                  style: TextStyle(fontSize: 16),
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.add),
+                                  onPressed: () async {
+                                    DocumentSnapshot productData =
+                                        await firestore
+                                            .collection('products')
+                                            .doc(data[index]['product_id'])
+                                            .get();
+
+                                    if (productData.exists) {
+                                      // Mengambil nilai 'p_quantity' dan mengonversi ke integer
+                                      int availableStock = int.tryParse(
+                                              productData.get('p_quantity') ??
+                                                  '0') ??
+                                          0;
+
+                                      if (data[index]['qty'] < availableStock) {
+                                        // Periksa apakah qty di keranjang kurang dari stok produk yang tersedia
+                                        controller.increaseCartQuantity(
+                                            data[index].id, data[index]['qty']);
+                                      } else {
+                                        VxToast.show(context,
+                                            msg: "Stok tidak cukup");
+                                      }
+                                    } else {
+                                      VxToast.show(context,
+                                          msg: "Produk tidak ditemukan");
+                                    }
+                                  },
+                                ),
+                              ],
+                            ),
                             ListTile(
                               leading: Image.network(
                                 "${data[index]['img']}",

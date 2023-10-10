@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:qurban_3/consts/consts.dart';
 
 const socialIconList = [ icGoogleLogo];
@@ -14,7 +15,7 @@ const freaturedTitles2 = [kambingA, dombaA, all];
 const itemDetailButtonList = [video,skkh];
 
 const profileButtonsList = [wishlist,orders,message ,logout];
-const profileButtonIcon = [icHeart,icOrder,icMessages, icLogout];
+const profileButtonIcon = [Icons.favorite,Icons.calendar_view_day,Icons.message, Icons.logout];
 
 const categoriesList = [featuredProduct, featuredProduct2];
-const categoriesImages = [logoqurban, logoaqiqah];
+const categoriesImages = [logoqurban3, logoaqiqah3];

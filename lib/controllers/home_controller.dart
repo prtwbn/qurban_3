@@ -22,6 +22,7 @@ class HomeController extends GetxController{
   var isLowestPrice = false.obs;
 var isHighestPrice = false.obs;
   getUsername() async {
+    if (currentUser == null) return; 
   var n = await firestore.collection(usersCollection).where('id', isEqualTo: currentUser!.uid).get().then((value) {
     if (value.docs.isNotEmpty) {
       return value.docs.single['name'];

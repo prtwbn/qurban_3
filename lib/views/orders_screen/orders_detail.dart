@@ -230,7 +230,7 @@ class _OrderDetailsState extends State<OrderDetails> {
   void initState() {
     super.initState();
     _getCurrentLocation();
-    _updateBuyerLocation();
+    //_updateBuyerLocation();
   }
 
   Future<void> _requestLocationPermission() async {
@@ -241,7 +241,7 @@ class _OrderDetailsState extends State<OrderDetails> {
           permission == LocationPermission.deniedForever) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Location permission denied.'),
+            content: const Text('Izinkan lokasi untuk melihat jarak antara anda dan penjual'),
           ),
         );
         return;
@@ -283,14 +283,14 @@ class _OrderDetailsState extends State<OrderDetails> {
       print('Error getting current location: $e');
     }
   }
-
+/*
   void _updateBuyerLocation() async {
     // Memperbarui lokasi pembeli secara periodik
     while (true) {
       await Future.delayed(const Duration(seconds: 10));
       _getCurrentLocation();
     }
-  }
+  }*/
 
   double calculateDistance(
     double startLatitude,
@@ -322,7 +322,7 @@ class _OrderDetailsState extends State<OrderDetails> {
     return Scaffold(
       backgroundColor: whiteColor,
       appBar: AppBar(
-        title: "Order Details"
+        title: "Detail Bookingan"
             .text
             .color(darkFontGrey)
             .fontFamily(semibold)
@@ -339,275 +339,280 @@ class _OrderDetailsState extends State<OrderDetails> {
                   icon: Icons.done,
                   title: "Booking",
                   showDone: widget.data['order_placed']),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  primary: Color.fromARGB(
-                      255, 219, 201, 32), // Warna latar button menjadi putih
-                  onPrimary: Colors.black, // Warna teks button
-                ),
-                onPressed: widget.data['order_placed']
-                    ? cancelOrderConfirmation // Ubah dari cancelOrder menjadi cancelOrderConfirmation
-                    : null,
-                child: Text("Cancel Booking"),
-              ),
+              5.heightBox,
               orderStatus(
                   color: Colors.purple,
                   icon: Icons.done_all_rounded,
                   title: "Done",
                   showDone: widget.data['order_delivered']),
+              10.heightBox,
+              SizedBox(
+                width: double.infinity, // Menyesuaikan lebar dengan parent
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Color.fromARGB(255, 219, 201, 32),
+                    onPrimary: Colors.black,
+                    padding: EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  ),
+                  onPressed: widget.data['order_placed']
+                      ? cancelOrderConfirmation
+                      : null,
+                  child: Text("Cancel Booking"),
+                ),
+              ),
               const Divider(),
               10.heightBox,
-              Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            "Shipping Booked".text.fontFamily(semibold).make(),
-                            8.heightBox,
-                            "${widget.data['order_by_name']}".text.make(),
-                            3.heightBox,
-                            "${widget.data['order_by_email']}".text.make(),
-                            3.heightBox,
-                            "${widget.data['order_by_nohp']}".text.make(),
-                            3.heightBox,
-                          ],
+              Card(
+                elevation: 4,
+                margin: EdgeInsets.all(0),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Ordered Product",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                      ],
-                    ),
-                  ).box.outerShadowMd.white.make(),
-                  const Divider(),
-                  10.heightBox,
-// Tampilkan alasan pembatalan jika pesanan telah dibatalkan
-                  if (widget.data['order_placed'] == false)
-                    "Bookingan dibatalkan, alasan Pembatalan: ${widget.data['cancellation_reason']}"
-                        .text
-                        .make(),
-                  10.heightBox,
-                  "Ordered Product"
-                      .text
-                      .size(16)
-                      .color(darkFontGrey)
-                      .fontFamily(semibold)
-                      .makeCentered(),
-                  10.heightBox,
-
-                  ListView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    shrinkWrap: true,
-                    children: List.generate(
-                      widget.data['orders'].length,
-                      ((index) {
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  widget.data['orders'][index]['sellername'],
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                                Spacer(),
-                                InkWell(
-                                  onTap: () {
-                                    // Navigasi ke ProfileSeller
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => VendorScren(
-                                          data: widget.data['orders'][index],
+                      ),
+                      20.heightBox,
+                      ListView.builder(
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        itemCount: widget.data['orders'].length,
+                        itemBuilder: (BuildContext context, int index) {
+                          final order = widget.data['orders'][index];
+                          return Card(
+                            elevation: 2,
+                            margin: EdgeInsets.only(bottom: 12),
+                            child: Padding(
+                              padding: const EdgeInsets.all(11.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(
+                                        order['sellername'],
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    );
-                                  },
-                                  child: Text(
-                                    "kunjungi toko",
-                                    style: TextStyle(color: Colors.blue),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            //10.heightBox,
-                            const Divider(color: yellow2),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Image.network(
-                                  "${widget.data['orders'][index]['img']}",
-                                  width: 50,
-                                  fit: BoxFit.cover,
-                                ),
-                                5.heightBox,
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment
-                                        .start, // Menyelaraskan ke kiri
-                                    children: [
-                                      orderPlaceDetails(
-                                        title1: widget.data['orders'][index]
-                                            ['title'],
-                                        title2:
-                                            "Rp ${widget.data['orders'][index]['price'].toString().numCurrency}",
-                                        d1: "${widget.data['orders'][index]['qty']}x",
-                                        d2: "",
-                                      ),
-                                      orderPlaceDetails(
-                                        title1: "Total Produk : ",
-                                        title2:
-                                            "Rp ${widget.data['total_amount'].toString().numCurrency}",
-                                        d1: "",
-                                        d2: "",
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            orderPlaceDetails(
-                              d1: widget.data['order_code'],
-                              d2: intl.DateFormat()
-                                  .add_yMd()
-                                  .format((widget.data['order_date'].toDate())),
-                              title1: "No Pesanan",
-                              title2: "Waktu Booking",
-                            ),
-                            /*
-
-                            const Divider(),
-
-                            10.heightBox,
-                            FutureBuilder<DocumentSnapshot>(
-                              future: FirebaseFirestore.instance
-                                  .collection('vendors')
-                                  .doc(
-                                      widget.data['orders'][index]['vendor_id'])
-                                  .get(),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  dynamic vendorData = snapshot.data!.data();
-                                  GeoPoint vendorLocation =
-                                      vendorData['vendor_location'];
-                                  double vendorLatitude =
-                                      vendorLocation.latitude;
-                                  double vendorLongitude =
-                                      vendorLocation.longitude;
-
-                                  LatLng vendorLatLng =
-                                      LatLng(vendorLatitude, vendorLongitude);
-
-                                  Set<Marker> markers = Set<Marker>.from([
-                                    Marker(
-                                      markerId: MarkerId('vendorMarker'),
-                                      position: vendorLatLng,
-                                      infoWindow: InfoWindow(
-                                        title: 'Vendor Location',
-                                        snippet:
-                                            'Latitude: $vendorLatitude, Longitude: $vendorLongitude',
-                                      ),
-                                    ),
-                                  ]);
-
-                                  LatLng? buyerLatLng;
-                                  if (_buyerPosition != null) {
-                                    buyerLatLng = LatLng(
-                                      _buyerPosition!.latitude,
-                                      _buyerPosition!.longitude,
-                                    );
-
-                                    double distance = calculateDistance(
-                                      vendorLatitude,
-                                      vendorLongitude,
-                                      buyerLatLng.latitude,
-                                      buyerLatLng.longitude,
-                                    );
-
-                                    return Column(
-                                      children: [
-                                        SizedBox(
-                                          width: double.infinity,
-                                          height: 200,
-                                          child: GoogleMap(
-                                            initialCameraPosition:
-                                                CameraPosition(
-                                              target: vendorLatLng,
-                                              zoom: 15,
+                                      Spacer(),
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => VendorScren(
+                                                data: order,
+                                              ),
                                             ),
-                                            markers: markers,
-                                            myLocationEnabled: true,
-                                            myLocationButtonEnabled: false,
+                                          );
+                                        },
+                                        child: Text(
+                                          "kunjungi toko",
+                                          style: TextStyle(
+                                            color: Colors.blue,
                                           ),
                                         ),
-                                        const SizedBox(height: 10),
-                                        Text(
-                                          'Jarak: ${distance.toStringAsFixed(2)} km dari anda',
-                                          style: const TextStyle(fontSize: 16),
-                                        ),
-                                      ],
-                                    );
-                                  } else {
-                                    return SizedBox(
-                                      width: double.infinity,
-                                      height: 200,
-                                      child: GoogleMap(
-                                        initialCameraPosition: CameraPosition(
-                                          target: vendorLatLng,
-                                          zoom: 15,
-                                        ),
-                                        markers: markers,
-                                        myLocationEnabled: true,
-                                        myLocationButtonEnabled: false,
                                       ),
-                                    );
-                                  }
-                                } else if (snapshot.hasError) {
-                                  return const Text('Failed to load data');
-                                } else {
-                                  return const CircularProgressIndicator();
-                                }
-                              },
-                            ), */
-                            10.heightBox,
-                            SizedBox(
-                              width: double.infinity, // mengambil lebar penuh
-                              height: 50.0,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  primary: Color.fromARGB(255, 219, 201,
-                                      32), // Warna latar button menjadi putih
-                                  onPrimary: Colors.black, // Warna teks button
-                                ),
-                                onPressed: () {
-                                  Get.to(
-                                    () => const ChatScreen(),
-                                    arguments: [
-                                      widget.data['orders'][index]
-                                          ['sellername'],
-                                      widget.data['orders'][index]['vendor_id'],
                                     ],
-                                  );
-                                },
-                                child: Text("Hubungi Penjual"),
+                                  ),
+                                  const Divider(color: yellow2),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Image.network(
+                                        order['img'],
+                                        width: 40,
+                                        fit: BoxFit.cover,
+                                      ),
+                                      5.heightBox,
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            orderPlaceDetails(
+                                              title1: order['title'],
+                                              title2:
+                                                  "Rp ${order['price'].toString().numCurrency}",
+                                              d1: "${order['qty']}x",
+                                              d2: "",
+                                            ),
+                                            orderPlaceDetails(
+                                              title1: "Total Produk : ",
+                                              title2:
+                                                  "Rp ${widget.data['total_amount'].toString().numCurrency}",
+                                              d1: "",
+                                              d2: "",
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  orderPlaceDetails(
+                                    d1: widget.data['order_code'],
+                                    d2: intl.DateFormat()
+                                        .add_yMd()
+                                        .add_Hm()
+                                        .format(
+                                            widget.data['order_date'].toDate()),
+                                    title1: "No Pesanan",
+                                    title2: "Waktu Booking",
+                                  ),
+                                  const Divider(),
+                                  10.heightBox,
+                                  FutureBuilder<DocumentSnapshot>(
+                                    future: FirebaseFirestore.instance
+                                        .collection('vendors')
+                                        .doc(widget.data['orders'][index]
+                                            ['vendor_id'])
+                                        .get(),
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData) {
+                                        dynamic vendorData =
+                                            snapshot.data!.data();
+                                        GeoPoint vendorLocation =
+                                            vendorData['vendor_location'];
+                                        double vendorLatitude =
+                                            vendorLocation.latitude;
+                                        double vendorLongitude =
+                                            vendorLocation.longitude;
+
+                                        LatLng vendorLatLng = LatLng(
+                                            vendorLatitude, vendorLongitude);
+
+                                        Set<Marker> markers = Set<Marker>.from([
+                                          Marker(
+                                            markerId: MarkerId('vendorMarker'),
+                                            position: vendorLatLng,
+                                            infoWindow: InfoWindow(
+                                              title: 'Vendor Location',
+                                              snippet:
+                                                  'Latitude: $vendorLatitude, Longitude: $vendorLongitude',
+                                            ),
+                                          ),
+                                        ]);
+
+                                        LatLng? buyerLatLng;
+                                        if (_buyerPosition != null) {
+                                          buyerLatLng = LatLng(
+                                            _buyerPosition!.latitude,
+                                            _buyerPosition!.longitude,
+                                          );
+
+                                          double distance = calculateDistance(
+                                            vendorLatitude,
+                                            vendorLongitude,
+                                            buyerLatLng.latitude,
+                                            buyerLatLng.longitude,
+                                          );
+
+                                          return Column(
+                                            children: [
+                                              SizedBox(
+                                                width: double.infinity,
+                                                height: 200,
+                                                child: GoogleMap(
+                                                  initialCameraPosition:
+                                                      CameraPosition(
+                                                    target: vendorLatLng,
+                                                    zoom: 15,
+                                                  ),
+                                                  markers: markers,
+                                                  myLocationEnabled: true,
+                                                  myLocationButtonEnabled:
+                                                      false,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 10),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 4.0),
+                                                child: Text(
+                                                  'Jarak: ${distance.toStringAsFixed(2)} km dari anda',
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                        vertical: 4.0),
+                                                child: Text(
+                                                  '${vendorData['alamat']}',
+                                                  style: const TextStyle(
+                                                      fontSize: 14),
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          return SizedBox(
+                                            width: double.infinity,
+                                            height: 200,
+                                            child: GoogleMap(
+                                              initialCameraPosition:
+                                                  CameraPosition(
+                                                target: vendorLatLng,
+                                                zoom: 15,
+                                              ),
+                                              markers: markers,
+                                              myLocationEnabled: true,
+                                              myLocationButtonEnabled: false,
+                                            ),
+                                          );
+                                        }
+                                      } else if (snapshot.hasError) {
+                                        return const Text(
+                                            'Failed to load data');
+                                      } else {
+                                        return const CircularProgressIndicator();
+                                      }
+                                    },
+                                  ),
+                                  10.heightBox,
+                                  SizedBox(
+                                    width: double
+                                        .infinity, // mengambil lebar penuh
+                                    height: 50.0,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        primary: Color.fromARGB(255, 219, 201,
+                                            32), // Warna latar button menjadi putih
+                                        onPrimary:
+                                            Colors.black, // Warna teks button
+                                      ),
+                                      onPressed: () {
+                                        Get.to(
+                                          () => const ChatScreen(),
+                                          arguments: [
+                                            widget.data['orders'][index]
+                                                ['sellername'],
+                                            widget.data['orders'][index]
+                                                ['vendor_id'],
+                                          ],
+                                        );
+                                      },
+                                      child: Text("Hubungi Penjual"),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ],
-                        );
-                      }),
-                    ),
-                  )
-                      .box
-                      .outerShadowMd
-                      .white
-                      .margin(const EdgeInsets.only(bottom: 4))
-                      .make(),
-
-                  //const Divider(),
-                ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ],
           ),

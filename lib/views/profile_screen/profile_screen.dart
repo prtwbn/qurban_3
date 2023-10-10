@@ -9,6 +9,7 @@ import 'package:qurban_3/services/firestore_services.dart';
 import 'package:qurban_3/views/auth_screen/login_screen.dart';
 import 'package:qurban_3/views/chat_screen/messaging_screen.dart';
 import 'package:qurban_3/views/orders_screen/orders_screen.dart';
+import 'package:qurban_3/views/profile_screen/change_password.dart';
 import 'package:qurban_3/views/profile_screen/edit_profile_screen.dart';
 import 'package:qurban_3/views/wishlist_screen.dart/wishlist_screen.dart';
 import 'package:qurban_3/widgets_common/bg_widget.dart';
@@ -27,7 +28,8 @@ class ProfileScreen extends StatelessWidget {
         child: Scaffold(
       body: StreamBuilder(
         stream: FirestorServices.getUser(currentUser!.uid),
-        builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
           if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(
@@ -40,29 +42,34 @@ class ProfileScreen extends StatelessWidget {
                 child: Column(
               children: [
                 //edit profile button
-                Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: const Align(
-                          alignment: Alignment.topRight,
-                          child: Icon(Icons.edit, color: black))
-                      .onTap(() {
-                    controller.nameController.text = data['name'];
-                    //controller.passController.text = data['password'];
-                    Get.to(() => EditProfileScreen(
-                          data: data,
-                        ));
-                  }),
+                Align(
+                  alignment: Alignment.topRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(12.0),
+                    child: IconButton(
+                        onPressed: () {
+                          controller.nameController.text = data['name'];
+                          Get.to(() => EditProfileScreen(
+                                data: data,
+                              ));
+                        },
+                        icon: const Icon(
+                          Icons.edit,
+                          color: black,
+                        )),
+                        
+                  ),
                 ),
 
                 //users details section
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10.0),
                   child: Row(
-                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       data['imageUrl'] == ''
                           ? Image.asset(imgProfile2,
-                                  width: 80, fit: BoxFit.cover)
+                                  width: 70, fit: BoxFit.cover)
                               .box
                               .roundedFull
                               .clip(Clip.antiAlias)
@@ -73,83 +80,31 @@ class ProfileScreen extends StatelessWidget {
                               .roundedFull
                               .clip(Clip.antiAlias)
                               .make(),
-                      10.widthBox,
-                      
-                     
+                      //10.widthBox,
                     ],
                   ),
                 ),
                 10.heightBox,
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    "${data['name']}".text.fontFamily(bold).black.make(),
-                    
-                  ],
-                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      "${data['name']}".text.fontFamily(bold).black.make(),
+                    ],
+                  ),
                 ),
                 5.heightBox,
-                Padding(padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    "${data['email']}".text.black.make(),
-                    
-                  ],
-                ),
-                ),
                 
-
-                /*
-                FutureBuilder(
-                    future: FirestorServices.getCounts(),
-                    builder: (BuildContext context, AsyncSnapshot snapshot) {
-                      if (!snapshot.hasData) {
-                        return Center(child: loadingIndicator());
-                      }else{
-                        var countData = snapshot.data;
-                        return Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          detailsCard(
-                              count: countData[0].toString(),
-                              title: "your cart",
-                              width: context.screenWidth / 3.3),
-                          detailsCard(
-                              count: countData[1].toString(),
-                              title: "your wishlist",
-                              width: context.screenWidth / 3.3),
-                          detailsCard(
-                              count: countData[2].toString(),
-                              title: "your orders",
-                              width: context.screenWidth / 3.3),
-                        ],
-                      );
-                      }
-                      
-                    }),
-                    */
-
-                /*
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    detailsCard(
-                        count: data['cart_count'],
-                        title: "in your cart",
-                        width: context.screenWidth / 3.4),
-                    detailsCard(
-                        count: data['wishlist_count'],
-                        title: "in your wishlist",
-                        width: context.screenWidth / 3.4),
-                    detailsCard(
-                        count: data['order_count'],
-                        title: "your orders",
-                        width: context.screenWidth / 3.4),
-                  ],
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      "${data['email']}".text.black.make(),
+                    ],
+                  ),
                 ),
-                */
 
                 30.heightBox,
 
@@ -177,14 +132,15 @@ class ProfileScreen extends StatelessWidget {
                                   Get.to(() => const MessagesScreen());
                                   break;
                                 case 3:
-                                 await Get.put(AuthController()).signoutMethod();
-                                Get.offAll(() => const LoginScreen());
-                                break;
+                                  await Get.put(AuthController())
+                                      .signoutMethod();
+                                  //Get.offAll(() => const LoginScreen());
+                                  break;
                               }
                             }),
-                            leading: Image.asset(
+                            leading: Icon(
                               profileButtonIcon[index],
-                              width: 22,
+                              //width: 22,
                             ),
                             title: profileButtonsList[index]
                                 .text

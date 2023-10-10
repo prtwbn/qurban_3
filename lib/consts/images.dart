@@ -138,3 +138,5 @@ const imgDomba2 ="assets/images/logodomba2.jpeg";
 const imgSapi ="assets/images/logosapi.jpeg";
 const logoqurban ="assets/images/logoqurban2.png";
 const logoaqiqah ="assets/images/logoaqiqah2.png";
+const logoqurban3 = "assets/images/qurban.jpeg";
+const logoaqiqah3 = "assets/images/aqiqah.jpeg";

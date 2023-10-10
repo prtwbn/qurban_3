@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:qurban_3/consts/consts.dart';
 import 'package:qurban_3/consts/lists.dart';
 import 'package:qurban_3/controllers/auth_controller.dart';
+import 'package:qurban_3/views/auth_screen/forget_password.dart';
 import 'package:qurban_3/views/auth_screen/signup_screen.dart';
 import 'package:qurban_3/views/home_screen/home.dart';
 import 'package:qurban_3/widgets_common/applogo_widget.dart';
@@ -10,11 +11,13 @@ import 'package:qurban_3/widgets_common/applogo_widget.dart';
 //import 'package:flutter/src/widgets/container.dart';
 //import 'package:qurban_3/consts/consts.dart';
 import 'package:qurban_3/widgets_common/bg_widget.dart';
+import 'package:qurban_3/widgets_common/custom_password.dart';
 import 'package:qurban_3/widgets_common/custom_textField.dart';
 import 'package:qurban_3/widgets_common/our_button.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({Key? key}) : super(key: key);
+
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,7 @@ class LoginScreen extends StatelessWidget {
                       title: email,
                       isPass: false,
                       controller: controller.emailController),
-                  customTextField(
+                  CustomPassword(
                       hint: passwordHint,
                       title: password,
                       isPass: true,
@@ -50,7 +53,9 @@ class LoginScreen extends StatelessWidget {
                   Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                          onPressed: () {}, child: forgetPass.text.make())),
+                          onPressed: () {
+                            controller.navigateToPasswordResetPage();
+                          }, child: forgetPass.text.make())),
                   5.heightBox,
                   controller.isloading.value
                       ? const CircularProgressIndicator(
@@ -65,13 +70,14 @@ class LoginScreen extends StatelessWidget {
                             await controller
                                 .loginMethod(context: context)
                                 .then((value) {
-                              if (value != null) {
+                                  controller.isloading(false);
+                              if (value != null && value.user!.emailVerified) {
                                 VxToast.show(context, msg: loggedin);
                                 Get.offAll(() => const Home());
                                 //controller.signoutMethod(); 
-                              }else{
-                                controller.isloading(false);
                               }
+                                
+                              
                             });
                           }).box.width(context.screenWidth - 50).make(),
                   5.heightBox,

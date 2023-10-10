@@ -25,6 +25,7 @@ class _LokasiScreenState extends State<LokasiScreen> {
     target: LatLng(0, 0),
     zoom: 14,
   );
+  
 
   Set<Marker> markers = {};
   Set<Circle> circles = {};
@@ -122,43 +123,43 @@ class _LokasiScreenState extends State<LokasiScreen> {
                   items: [
                     const DropdownMenuItem(
                       value: 1000,
-                      child: Text('1000m'),
+                      child: Text('1km'),
                     ),
                     const DropdownMenuItem(
                       value: 2000,
-                      child: Text('2000m'),
+                      child: Text('2km'),
                     ),
                     const DropdownMenuItem(
                       value: 3000,
-                      child: Text('3000m'),
+                      child: Text('3km'),
                     ),
                     const DropdownMenuItem(
                       value: 4000,
-                      child: Text('4000m'),
+                      child: Text('4km'),
                     ),
                     const DropdownMenuItem(
                       value: 5000,
-                      child: Text('5000m'),
+                      child: Text('5km'),
                     ),
                     const DropdownMenuItem(
                       value: 6000,
-                      child: Text('6000m'),
+                      child: Text('6km'),
                     ),
                     const DropdownMenuItem(
                       value: 7000,
-                      child: Text('7000m'),
+                      child: Text('7km'),
                     ),
                     const DropdownMenuItem(
                       value: 8000,
-                      child: Text('8000m'),
+                      child: Text('8km'),
                     ),
                     const DropdownMenuItem(
                       value: 9000,
-                      child: Text('9000m'),
+                      child: Text('9km'),
                     ),
                     const DropdownMenuItem(
                       value: 10000,
-                      child: Text('10000m'),
+                      child: Text('10km'),
                     ),
                   ],
                 ),
@@ -193,41 +194,83 @@ class _LokasiScreenState extends State<LokasiScreen> {
 
           setState(() {});
         },
-        label: const Text("Current Location"),
+        label: const Text("Lokasi Sekarang"),
         icon: const Icon(Icons.location_history),
         backgroundColor: const Color.fromRGBO(255, 168, 0, 1),
       ),
     );
   }
 
+  
+Position defaultPosition() {
+  return Position(
+    latitude: 0, 
+    longitude: 0,
+    timestamp: DateTime.now(),
+    accuracy: 0,
+    altitude: 0,
+    heading: 0,
+    speed: 0,
+    speedAccuracy: 0
+  );  // Anda bisa mengganti ke lokasi default yang Anda inginkan.
+}
+
+
+
+
   Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
+  bool serviceEnabled;
+  LocationPermission permission;
 
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
 
-    if (!serviceEnabled) {
-      return Future.error("Location service are disabled");
-    }
-
-    permission = await Geolocator.checkPermission();
-
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-
-      if (permission == LocationPermission.denied) {
-        return Future.error("Location permission denied");
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error("Location permission are permanently denied");
-    }
-
-    Position position = await Geolocator.getCurrentPosition();
-
-    return position;
+  if (!serviceEnabled) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Izinkan lokasi untuk melihat jarak antara Anda dan penjual.'),
+      ),
+    );
+    return defaultPosition();
   }
+
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Izinkan lokasi untuk melihat jarak antara Anda dan penjual.'),
+      ),
+    );
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Izin lokasi ditolak, izinkan di pengaturan'),
+        ),
+      );
+      return defaultPosition();
+    }
+  }
+
+  if (permission == LocationPermission.deniedForever) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Izinkan lokasi untuk melihat jarak antara Anda dan penjual.'),
+      ),
+    );
+    return defaultPosition();
+  }
+
+  Position position;
+  try {
+    position = await Geolocator.getCurrentPosition();
+  } catch (e) {
+    position = defaultPosition();
+  }
+
+  return position;
+}
+
+
 
   Future<void> _fetchVendorsData() async {
     // Mengambil data penjual dari Firestore
@@ -333,10 +376,7 @@ class _LokasiScreenState extends State<LokasiScreen> {
           position: vendorLocation,
           icon:
               BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueOrange),
-          infoWindow: InfoWindow(
-            title: doc['name'],
-            snippet: doc['email'],
-          ),
+          infoWindow: InfoWindow(title: doc['name']),
           /*
           onTap: () {
             Navigator.push(

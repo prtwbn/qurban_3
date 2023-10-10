@@ -19,7 +19,11 @@ class ProfileController extends GetxController {
   var oldpassController = TextEditingController();
   var newpassController = TextEditingController();
 
+  get snapshotData => null;
 
+  //get snapshotData => null;
+
+  
   changeImage(context) async {
     try {
       final img = await ImagePicker()
@@ -43,6 +47,13 @@ class ProfileController extends GetxController {
   updateProfile({name, password, imgUrl}) async {
     var store = firestore.collection(usersCollection).doc(currentUser!.uid);
     await store.set({'name': name, 'password': password, 'imageUrl': imgUrl},
+        SetOptions(merge: true));
+    isloading(false);
+  }
+
+   updatePw({password}) async {
+    var store = firestore.collection(usersCollection).doc(currentUser!.uid);
+    await store.set({'password': password},
         SetOptions(merge: true));
     isloading(false);
   }
